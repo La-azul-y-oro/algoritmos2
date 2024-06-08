@@ -221,20 +221,36 @@ myIdentidad x = x
 
 -- a) 'divisors', que dado un entero positivo 'x' devuelve la
 -- lista de los divisores de 'x' (o la lista vacía si el entero no es positivo)
+divisors :: Int -> [Int]
+divisors x | x <= 0 = []
+           | otherwise = [a | a <- [1..x], x `mod` a == 0]
 
 -- b) 'matches', que dados un entero 'x' y una lista de enteros descarta
 -- de la lista los elementos distintos a 'x'
+matches :: Int -> [Int] -> [Int]
+matches x xs = [y | y <- xs, x==y]
 
 -- c) 'cuadrupla', que dado un entero 'n', devuelve todas las cuadruplas
 -- '(a,b,c,d)' que satisfacen a^2 + b^2 = c^2 + d^2,
 -- donde 0 <= a, b, c, d <= 'n'
+cuadrupla :: Int -> [(Int, Int, Int, Int)]
+cuadrupla n = [(a, b, c, d) | a <- [0..n], b <- [0..n], c <- [0..n], d <- [0..n], a^2 + b^2 == c^2 + d^2]
 
 -- (d) 'unique', que dada una lista 'xs' de enteros, devuelve la lista
 -- 'xs' sin elementos repetidos
 -- unique :: [Int] -> [Int]
+unique :: [Int] -> [Int]
+unique xs = [x | (x, i) <- zip xs [0..], x `notElem` (take i xs)]
 -- -}
 
+-- [5,5,3,4,5,1]
 
+-- 5 [] - 5
+-- 5 [5] - x
+-- 3 [5 5] - 3
+-- 4 [5 5 3 ] -4
+-- 5 [5 5 3 4 ] -x 
+-- 1 [ 5 5 3 4 5] - 1
 
 -- {-
 -- 6) El producto escalar de dos listas de enteros de igual longitud
@@ -243,6 +259,8 @@ myIdentidad x = x
 -- devuelva el producto escalar de dos listas.
 
 -- Sugerencia: Usar las funciones 'zip' y 'sum'. -}
+scalarProduct :: [Int] -> [Int] -> Int
+scalarProduct xs ys = sum [ x*y | (x,y) <- zip xs ys]
 
 -- {-
 -- 7) Sin usar funciones definidas en el
@@ -250,43 +268,194 @@ myIdentidad x = x
 -- determine su tipo más general:
 
 -- a) 'suma', que suma todos los elementos de una lista de números
+suma :: Num a => [a] -> a
+suma [] = 0
+suma (x:xs) = x + suma xs 
 
 -- b) 'alguno', que devuelve True si algún elemento de una
 -- lista de valores booleanos es True, y False en caso
 -- contrario
 
+alguno :: [Bool] -> Bool
+alguno [] = False
+alguno (x:xs) = x || alguno xs
+
 -- c) 'todos', que devuelve True si todos los elementos de
 -- una lista de valores booleanos son True, y False en caso
 -- contrario
+todos :: [Bool] -> Bool
+todos [] = True
+todos (x:xs) = x && todos xs
 
 -- d) 'codes', que dada una lista de caracteres, devuelve la
 -- lista de sus ordinales
+--- TOMADO de la resolucion del profesor
+code c = buscar c (zip (['a'..'m']++['ñ']++['o'..'z']) [1..])
+buscar c [] = error "El caracter no tiene ordinal"
+buscar c ((x,i):xs) = if x == c then i else buscar c xs
+
+
+codes:: [Char] -> [Int]
+codes [] = []
+codes (x:xs) = code x : codes xs
 
 -- e) 'restos', que calcula la lista de los restos de la
 -- división de los elementos de una lista de números dada por otro
 -- número dado
 
+restos :: [Int] -> Int -> [Int]
+restos [] _ = []
+restos (x:xs) n = (x `mod` n) : restos xs n
+
 -- f) 'cuadrados', que dada una lista de números, devuelva la
 -- lista de sus cuadrados
+cuadrados :: Num a => [a] -> [a]
+cuadrados [] = []
+cuadrados (x:xs) = x^2 : cuadrados xs
 
 -- g) 'longitudes', que dada una lista de listas, devuelve la
 -- lista de sus longitudes
 
+longitudes :: [[a]] -> [Int]
+longitudes [] = []
+longitudes (x:xs) = length x : longitudes xs
+
+
 -- h) 'orden', que dada una lista de pares de números, devuelve
 -- la lista de aquellos pares en los que la primera componente es
 -- menor que el triple de la segunda
-
+orden :: (Num a, Ord a) => [(a,a)] -> [(a,a)] 
+orden [] = []
+orden ((x,y) : xs) | x < y*3 = (x,y) : orden xs
+                   | otherwise = orden xs
+                   
 -- i) 'pares', que dada una lista de enteros, devuelve la lista
 -- de los elementos pares
 
+pares :: [Int] -> [Int]
+pares [] = []
+pares (x:xs) | x `mod` 2 == 0 = x : pares xs
+             | otherwise = pares xs
+
 -- j) 'letras', que dada una lista de caracteres, devuelve la
 -- lista de aquellos que son letras (minúsculas o mayúsculas)
+--- TOMADO de la resolucion del profesor
+letras::[Char] -> [Char]
+letras [] = []
+letras (x:xs) = if x `elem` ['a'..'z'] then x: letras xs
+                                       else letras xs
+
 
 -- k) 'masDe', que dada una lista de listas 'xss' y un
 -- número 'n', devuelve la lista de aquellas listas de 'xss'
 -- con longitud mayor que 'n' -}
+masDe :: [[a]] -> Int -> [[a]]
+masDe [] _ = []
+masDe (xs:xss) n | length xs >= n = xs : masDe xss n
+                 | otherwise = masDe xss n
 
 -- {-
 -- 8) Redefinir las funciones del ejercicio anterior usando foldr, map y filter.
 -- ver su definición en https://hoogle.haskell.org/
 -- -}
+-- a) 'suma', que suma todos los elementos de una lista de números
+suma' :: Num a => [a] -> a
+suma' [] = 0
+suma' (x:xs) = foldr (+) x xs 
+
+-- b) 'alguno', que devuelve True si algún elemento de una
+-- lista de valores booleanos es True, y False en caso
+-- contrario
+
+alguno' :: [Bool] -> Bool
+alguno' [] = False
+alguno' (x:xs) = foldr (||) x xs
+
+-- -- c) 'todos', que devuelve True si todos los elementos de
+-- -- una lista de valores booleanos son True, y False en caso
+-- -- contrario
+todos' :: [Bool] -> Bool
+todos' [] = True
+todos' (x:xs) = foldr (&&) x xs
+
+-- -- d) 'codes', que dada una lista de caracteres, devuelve la
+-- -- lista de sus ordinales
+-- --- TOMADO de la resolucion del profesor
+-- code c = buscar c (zip (['a'..'m']++['ñ']++['o'..'z']) [1..])
+-- buscar c [] = error "El caracter no tiene ordinal"
+-- buscar c ((x,i):xs) = if x == c then i else buscar c xs
+
+
+-- codes:: [Char] -> [Int]
+-- codes [] = []
+-- codes (x:xs) = code x : codes xs
+
+-- e) 'restos', que calcula la lista de los restos de la
+-- división de los elementos de una lista de números dada por otro
+-- número dado
+
+restos' :: [Int] -> Int -> [Int]
+restos' [] _ = []
+restos' xs n = map (`mod` n) xs
+
+-- -- f) 'cuadrados', que dada una lista de números, devuelva la
+-- -- lista de sus cuadrados
+cuadrados' :: Num a => [a] -> [a]
+cuadrados' [] = []
+cuadrados' xs = map (^2) xs
+
+-- g) 'longitudes', que dada una lista de listas, devuelve la
+-- lista de sus longitudes
+
+longitudes' :: [[a]] -> [Int]
+longitudes' [] = []
+longitudes' xs = map length xs
+
+-- -- h) 'orden', que dada una lista de pares de números, devuelve
+-- -- la lista de aquellos pares en los que la primera componente es
+-- -- menor que el triple de la segunda
+orden' :: (Num a, Ord a) => [(a,a)] -> [(a,a)] 
+orden' [] = []
+-- orden' xs = filter isMinor xs
+--             where isMinor (x,y) = x < y*3
+orden' xs = filter (\(x,y) -> x < y*3) xs
+                   
+-- i) 'pares', que dada una lista de enteros, devuelve la lista
+-- de los elementos pares
+
+pares' :: [Int] -> [Int]
+pares' [] = []
+pares' xs = filter (\x -> x `mod` 2 == 0) xs
+
+
+-- -- j) 'letras', que dada una lista de caracteres, devuelve la
+-- -- lista de aquellos que son letras (minúsculas o mayúsculas)
+letras' :: [Char] -> [Char]
+letras' [] = []
+letras' xs = filter (\x -> x `elem` ['a'..'z']) xs
+
+-- -- k) 'masDe', que dada una lista de listas 'xss' y un
+-- -- número 'n', devuelve la lista de aquellas listas de 'xss'
+-- -- con longitud mayor que 'n' -}
+masDe' :: [[a]] -> Int -> [[a]]
+masDe' [] _ = []
+masDe' xss n = filter (\xs -> length xs >= n) xss
+
+
+----- SOBRE FOLDL (left) y FOLDR (right)
+{- Diferencias Clave:
+
+Orden de Aplicación: foldr procesa la lista de derecha a izquierda, mientras que foldl lo hace de izquierda a derecha.
+Función Binaria: En foldr, la función binaria toma un elemento de la lista y el acumulador. En foldl, toma el acumulador y un elemento de la lista.
+Asociatividad: foldr es adecuado para funciones binarias que son asociativas hacia la derecha, y foldl para las que son asociativas hacia la izquierda.
+Pereza: foldr puede trabajar con listas infinitas debido a su naturaleza perezosa. foldl no puede trabajar con listas infinitas ya que intenta evaluar la lista completa.
+
+Ejemplos para Ilustrar la Diferencia
+  foldr (:) [] [1, 2, 3]  -- Resultado: [1, 2, 3]
+  foldr (\x acc -> acc ++ [x]) [] [1, 2, 3]  -- Resultado: [3, 2, 1]
+
+  foldl (flip (:)) [] [1, 2, 3]  -- Resultado: [3, 2, 1]
+  foldl (\acc x -> x : acc) [] [1, 2, 3]  -- Resultado: [3, 2, 1]
+
+En resumen, la elección entre foldr y foldl depende de la naturaleza de la función binaria que estás utilizando y del comportamiento deseado en 
+términos de orden y asociatividad. -}
