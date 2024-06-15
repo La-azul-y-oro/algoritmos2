@@ -121,19 +121,40 @@ copia (x, c) = replicate x c
 --------------------
 -- 2. Definir usando listas por comprension las funciones:
 -- a) cambios : [a ] → [Int], que dada una lista, devuelve la lista de los ındices en que la lista
--- cambia. Es decir, dada la lista s retorna la lista con los i tal que si 6= si+1
+-- cambia. Es decir, dada la lista s retorna la lista con los i tal que si <= si+1
 -- cambios [1, 1, 1, 3, 3, 1, 1] = [2, 4]
--- b) oblongoNumber :: [Int] que genera la lista de los numeros oblongos. Un numero es oblongo
--- si es el producto de dos naturales consecutivos. Por ejemplo, los numeros [2, 6, 12, 20, ...]
+
+cambios :: Eq a => [a] -> [Int]
+cambios [] = []
+cambios xs = [i | (i, (x,y)) <- zip [1..] (zip xs (tail xs)), x/=y]
+
+
+--[1, 1, 1, 3, 3, 1, 1] [1, 1, 3, 3, 1, 1]
+--(zip xs (tail xs)) = [(1,1),(1,1),(1,3),(3,3),(3,1),(1,1)] --- primer zip
+-- [ (1,(1,1)), (2,(1,1)), (3,(1,3)), (4,(3,3)), (5,(3,1)), (6,(1,1))] ---segundo zip
+-- (1,(1,1)) -> 1 != 1 -> falso -> NO agrega
+-- (2,(1,1)) -> 1 != 1 -> falso -> NO agrega
+-- (3,(1,3)) -> 1 != 3 -> true -> agrega
+-- (4,(3,3)) -> 3 != 3 -> falso -> NO agrega
+-- (5,(3,1)) -> 3 != 1 -> true -> agrega
+-- (6,(1,1)) -> 1 != 1 -> falso -> NO agrega
+
+-- b) oblongoNumber :: [Int] que genera la lista de los numeros oblongos. Un numero es oblongo si es el producto de dos naturales consecutivos. Por ejemplo, los numeros [2, 6, 12, 20, ...]
+oblongoNumber :: Int -> [Int]
+oblongoNumber n = [i * (i + 1) | i <- [1..n]]
+
 -- c) abundantes :: [Integer] que es la lista de todos los numeros abundantes. Un numero natural
 -- n se denomina abundante si es menor que la suma de sus divisores propios. Por ejemplo, 12
 -- y 30 son abundantes pero 5 y 28 no lo son. Por ejemplo abundates = [12, 18, 20, 24, 30, 36, ...
+
 -- d) eco que devuelve la cadena obtenida a partir de la cadena xs repitiendo cada elemento tantas
 -- veces como indica su posicion. No usar listas por comprension. Por ejemplo: eco "hola" =
 -- "hoolllaaaa"
+
 -- e) euler :: Int → Int tal que euler n es la suma de todos los multiplos de 3 o 5 menores que n.
 -- Por ejemplo, euler 10 = 23. Puedes usar sin definir la funcion sum que suma los elementos
 -- de una lista
+
 -- f) expandir :: [Int] → [Int] que reemplace en una lista de numeros positivos cada numero n por
 -- n copias de sı mismo:
 -- Ejemplo: expandir [3, 4, 2] = [3, 3, 3, 4, 4, 4, 4, 2, 2]
